@@ -81,17 +81,20 @@ def compute_spectrogram(DASdata, md, fs=None, nperseg=256, noverlap=None):
     f, t, Sxx = spectrogram(chan_data, fs=fs, nperseg=nperseg, noverlap=noverlap)
     return f, t, Sxx
 
-def plot_spectrogram(DASdata, md, fs=None, nperseg=256, noverlap=None, log_scale=True):
+def plot_spectrogram(DASdata, md, fs=None, nperseg=256, noverlap=None, log_scale=True,
+                     clim_percentiles=(5,99)):
     f, t, Sxx = compute_spectrogram(DASdata, md, fs=fs, nperseg=nperseg, noverlap=noverlap)
     Sxx_plot = 10 * np.log10(Sxx + 1e-12) if log_scale else Sxx
 
-    plt.figure(figsize=(10, 6))
+    vmin = np.percentile(Sxx_plot, clim_percentiles[0])
+    vmax = np.percentile(Sxx_plot, clim_percentiles[1])
+
+    plt.figure(figsize=(8,5))
     plt.pcolormesh(t, f, Sxx_plot, shading='gouraud')
     plt.ylabel('Frequency (Hz)')
     plt.xlabel('Time (s)')
     plt.title(f"Spectrogram at Depth ≈ {md}")
+    plt.clim(vmin, vmax)
     plt.colorbar(label='Power (dB)' if log_scale else 'Amplitude')
     plt.tight_layout()
     plt.show()
-
-
